@@ -1,0 +1,62 @@
+# ----------------------------------------------------
+# File: docker-compose.yml
+# Deskripsi: Mengorkestrasi aplikasi Nest.js, MongoDB, dan RabbitMQ menggunakan Docker.
+# Untuk menjalankan: docker-compose up --build
+# ----------------------------------------------------
+version: '3.8' # Versi Docker Compose
+
+services:
+  mongodb:
+    image: mongo:latest # Menggunakan image MongoDB terbaru
+    container_name: mongodb_youapp # Nama kontainer untuk MongoDB
+    ports:
+      - '27017:27017' # Memetakan port MongoDB dari kontainer ke host
+    volumes:
+      - mongo_data:/data/db # Persistensi data MongoDB ke volume bernama
+    networks:
+      - youapp_network # Menghubungkan ke jaringan yang sama dengan aplikasi
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine # Menggunakan image RabbitMQ dengan UI manajemen
+    container_name: rabbitmq_youapp # Nama kontainer untuk RabbitMQ
+    ports:
+      - '5672:5672' # Port protokol AMQP
+      - '15672:15672' # Port UI manajemen RabbitMQ (akses di http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest # User default RabbitMQ
+      RABBITMQ_DEFAULT_PASS: guest # Password default RabbitMQ
+    networks:
+      - youapp_network # Menghubungkan ke jaringan yang sama dengan aplikasi
+
+  nest-app:
+    build:
+      context: . # Konteks build adalah direktori saat ini (root proyek)
+      dockerfile: Dockerfile # Menggunakan Dockerfile di direktori root
+    container_name: nest_youapp # Nama kontainer untuk aplikasi Nest.js
+    ports:
+      - '3000:3000' # Memetakan port aplikasi dari kontainer ke host
+    depends_on:
+      - mongodb # Pastikan MongoDB dimulai sebelum nest-app
+      - rabbitmq # Pastikan RabbitMQ dimulai sebelum nest-app
+    environment:
+      # Meneruskan variabel lingkungan dari .env ke kontainer nest-app
+      MONGO_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      RABBITMQ_QUEUE_MESSAGE: ${RABBITMQ_QUEUE_MESSAGE}
+      RABBITMQ_EXCHANGE_NOTIFICATION: ${RABBITMQ_EXCHANGE_NOTIFICATION}
+    volumes:
+      - ./nest-app:/app # Memasang direktori kode sumber Nest.js ke dalam kontainer
+      - /app/node_modules # Mencegah `node_modules` host menimpa `node_modules` kontainer
+    networks:
+      - youapp_network # Menghubungkan ke jaringan kustom
+    # Perintah untuk menjalankan aplikasi Nest.js dalam mode pengembangan (hot-reloading)
+    command: npm run start:dev
+
+networks:
+  youapp_network:
+    driver: bridge # Mendefinisikan jaringan bridge kustom
+
+volumes:
+  mongo_data: # Mendefinisikan volume untuk persistensi data MongoDB
