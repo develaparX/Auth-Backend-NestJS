@@ -31,7 +31,6 @@ export class UsersService {
      * @returns Dokumen pengguna yang dibuat.
      */
     async create(user: Partial<User>): Promise<UserDocument> {
-        const newUser = new this.userModel(user);
-        return newUser.save();
+        return this.userModel.create(user);
     }
 }

@@ -47,8 +47,7 @@ services:
       RABBITMQ_QUEUE_MESSAGE: ${RABBITMQ_QUEUE_MESSAGE}
       RABBITMQ_EXCHANGE_NOTIFICATION: ${RABBITMQ_EXCHANGE_NOTIFICATION}
     volumes:
-      - ./nest-app:/app # Memasang direktori kode sumber Nest.js ke dalam kontainer
-      - /app/node_modules # Mencegah `node_modules` host menimpa `node_modules` kontainer
+      - .:/app # Memasang direktori kode sumber Nest.js (root proyek) ke dalam kontainer
     networks:
       - youapp_network # Menghubungkan ke jaringan kustom
     # Perintah untuk menjalankan aplikasi Nest.js dalam mode pengembangan (hot-reloading)

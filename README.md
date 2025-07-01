@@ -65,13 +65,9 @@ git clone <URL_REPOSITORI_ANDA>
 cd <NAMA_FOLDER_PROYEK_ANDA>
 ```
 
-### 2. Navigasi ke Direktori Root Proyek
+### 2. Siapkan File Variabel Lingkungan (.env)
 
-Pastikan berada di direktori yang berisi `docker-compose.yml`, `Dockerfile`, dan `.env`.
-
-### 3. Siapkan File Variabel Lingkungan (.env)
-
-Contoh isi `.env`:
+Buat file `.env` di root proyek Anda. Contoh isi `.env`:
 
 ```
 MONGO_URI=mongodb://mongodb:27017/youapp_db
@@ -82,29 +78,34 @@ RABBITMQ_QUEUE_MESSAGE=message_queue
 RABBITMQ_EXCHANGE_NOTIFICATION=notification_exchange
 ```
 
-> Ganti JWT_SECRET dengan nilai yang aman untuk produksi.
+> Ganti `JWT_SECRET` dengan nilai yang aman untuk produksi.
 
-### 4. Jalankan Semua Layanan dengan Docker
+### 3. Jalankan Semua Layanan dengan Docker Compose
+
+Pastikan Anda berada di direktori root proyek yang berisi `docker-compose.yml`.
 
 ```bash
 docker-compose up --build
 ```
 
-### 5. Jalankan Hanya MongoDB dan RabbitMQ dengan Docker
+Ini akan membangun image Docker untuk aplikasi Nest.js Anda, serta menjalankan kontainer MongoDB dan RabbitMQ.
+
+### 4. Jalankan Hanya MongoDB dan RabbitMQ dengan Docker (Opsional, untuk pengembangan lokal)
+
+Jika Anda ingin menjalankan aplikasi Nest.js secara lokal di mesin Anda (bukan di dalam Docker), Anda dapat menjalankan hanya layanan database dan message broker dengan Docker:
 
 ```bash
-docker-compose up mongodb rabbitmq
+docker-compose up -d mongodb rabbitmq
 ```
 
-Lalu jalankan aplikasi Nest.js secara lokal:
+Kemudian, instal dependensi Node.js dan jalankan aplikasi Nest.js secara lokal:
 
 ```bash
-cd nest-app
 npm install
 npm run start:dev
 ```
 
-Pastikan `.env` Anda berisi:
+Pastikan `.env` Anda berisi `RABBITMQ_URL` yang menunjuk ke `localhost` jika Anda menjalankan RabbitMQ di Docker dan aplikasi Nest.js secara lokal:
 
 ```
 RABBITMQ_URL=amqp://localhost:5672
@@ -113,6 +114,7 @@ RABBITMQ_URL=amqp://localhost:5672
 ## Akses Aplikasi
 
 - Aplikasi API: [http://localhost:3000/api](http://localhost:3000/api)
+- Dokumentasi API (Swagger UI): [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 - RabbitMQ UI: [http://localhost:15672](http://localhost:15672) (user/pass: guest/guest)
 
 ## Konfigurasi Variabel Lingkungan
@@ -126,7 +128,7 @@ RABBITMQ_URL=amqp://localhost:5672
 
 ## Cara Mengecek Fitur
 
-Gunakan Postman/Insomnia. Pastikan server aktif.
+Gunakan Postman/Insomnia atau alat serupa. Pastikan server aktif.
 
 ### Registrasi Pengguna
 
@@ -228,27 +230,61 @@ Tukar token dan participantId.
 
 ## Menjalankan Tes
 
+Anda dapat menjalankan tes baik di dalam kontainer Docker atau secara lokal di mesin Anda.
+
+### Menjalankan Tes di dalam Kontainer Docker
+
+Pastikan kontainer `nest_youapp` sedang berjalan (`docker-compose up`). Kemudian, eksekusi perintah berikut untuk masuk ke shell kontainer dan menjalankan tes:
+
 ```bash
 docker exec -it nest_youapp sh
 ```
 
-### Jalankan Semua Tes
+Setelah masuk ke dalam kontainer, Anda bisa menjalankan perintah tes berikut:
 
-```bash
-npm test
-```
+- **Jalankan Semua Tes:**
+  ```bash
+  npm test
+  ```
 
-### Jalankan e2e Test Saja
+- **Jalankan Semua Tes dengan Laporan Cakupan (Coverage):**
+  ```bash
+  npm run test:cov
+  ```
 
-```bash
-npm run test:e2e
-```
+- **Jalankan e2e Test Saja:**
+  ```bash
+  npm run test:e2e
+  ```
 
-### Jalankan Unit Test Spesifik
+- **Jalankan Unit Test Spesifik:**
+  ```bash
+  npm test src/profiles/profile.service.spec.ts
+  ```
 
-```bash
-npm test src/profiles/profile.service.spec.ts
-```
+### Menjalankan Tes Secara Lokal (di luar Docker)
+
+Pastikan Anda telah menginstal semua dependensi Node.js (`npm install`).
+
+- **Jalankan Semua Tes:**
+  ```bash
+  npm test
+  ```
+
+- **Jalankan Semua Tes dengan Laporan Cakupan (Coverage):**
+  ```bash
+  npm run test:cov
+  ```
+
+- **Jalankan e2e Test Saja:**
+  ```bash
+  npm run test:e2e
+  ```
+
+- **Jalankan Unit Test Spesifik:**
+  ```bash
+  npm test src/profiles/profile.service.spec.ts
+  ```
 
 ---
 

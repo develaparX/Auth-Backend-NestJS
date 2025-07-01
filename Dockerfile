@@ -9,13 +9,13 @@ WORKDIR /app
 
 # Menyalin file package.json dan package-lock.json (jika ada)
 # Ini memungkinkan instalasi dependensi di layer terpisah, memanfaatkan cache Docker
-COPY nest-app/package*.json ./
+COPY package*.json ./
 
 # Menginstal dependensi proyek
 RUN npm install
 
-# Menyalin sisa kode aplikasi dari direktori nest-app ke dalam kontainer
-COPY nest-app/ .
+# Menyalin sisa kode aplikasi dari direktori root ke dalam kontainer
+COPY . .
 
 # Membangun aplikasi Nest.js (mengkompilasi TypeScript ke JavaScript)
 RUN npm run build

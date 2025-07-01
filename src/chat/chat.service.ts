@@ -38,15 +38,13 @@ export class ChatService {
         }
 
         // Membuat instance pesan baru
-        const newMessage = new this.messageModel({
+        const savedMessage = await this.messageModel.create({
             senderId: new Types.ObjectId(senderId), // Mengonversi string ID ke ObjectId
             receiverId: new Types.ObjectId(receiverId),
             message: messageContent,
             timestamp: new Date(), // Waktu pesan dikirim
             read: false, // Default: belum dibaca
         });
-
-        const savedMessage = await newMessage.save(); // Menyimpan pesan ke MongoDB
 
         // Memublikasikan notifikasi pesan ke RabbitMQ
         // Payload notifikasi berisi detail pesan

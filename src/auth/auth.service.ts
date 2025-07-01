@@ -37,13 +37,12 @@ export class AuthService {
         const hashedPassword = await bcrypt.hash(password, 10); // 10 adalah salt rounds (kekuatan hashing)
 
         // Membuat instance pengguna baru dan menyimpannya
-        const newUser = new this.userModel({
+        await this.userModel.create({
             email,
             password: hashedPassword,
             createdAt: new Date(), // Waktu pembuatan
             updatedAt: new Date(), // Waktu update
         });
-        await newUser.save(); // Menyimpan pengguna baru ke MongoDB
 
         return { message: 'Pengguna berhasil terdaftar' };
     }

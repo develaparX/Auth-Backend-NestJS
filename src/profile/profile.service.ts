@@ -42,7 +42,7 @@ export class ProfileService {
         const zodiac = ZodiacCalculator.getZodiac(birthDate.getFullYear());
 
         // Membuat instance profil baru
-        const newProfile = new this.profileModel({
+        return this.profileModel.create({
             userId,
             ...rest,
             birthday: birthDate,
@@ -51,8 +51,6 @@ export class ProfileService {
             createdAt: new Date(),
             updatedAt: new Date(),
         });
-
-        return newProfile.save(); // Menyimpan profil baru ke MongoDB
     }
 
     /**
